@@ -1,0 +1,4 @@
+---
+app_http_port: 80
+
+app_health_url: "http://127.0.0.1:{{ app_http_port }}/api/health"

@@ -1,0 +1,78 @@
+bash scripts/test.sh
+========================================
+       CLOUDTASK AUTOMATED TESTS
+========================================
+
+=== APPLICATION HEALTH ===
+{"status":"healthy","database":"connected"}
+
+=== DNS TESTS ===
+=== CLOUDTASK DNS TEST ===
+[TEST 1] Authoritative DNS zone
+;; flags: qr aa; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+[PASS] Authoritative answer received.
+[PASS] frontend.cloudtask.test -> 192.168.122.206
+[PASS] backend.cloudtask.test -> 172.20.20.20
+[PASS] db.cloudtask.test -> 172.20.30.30
+[TEST 5] Unauthorized DNS update
+update failed: REFUSED
+[INFO] Unsigned update was rejected.
+[PASS] Unauthorized DNS record does not exist.
+=== ALL DNS TESTS PASSED ===
+
+=== NETWORK ISOLATION TESTS ===
+=== CLOUDTASK NETWORK TEST ===
+[TEST 1] Frontend -> Backend
+[PASS] Frontend can reach backend.
+[TEST 2] Backend -> Database
+[PASS] Backend can reach database.
+[TEST 3] Frontend -> Database
+Server:		127.0.0.11
+Address:	127.0.0.11:53
+
+
+Name:	db.cloudtask.test
+Address: 172.20.30.30
+
+[PASS] Frontend cannot reach database.
+[TEST 4] Backend published ports
+[PASS] Backend has no published ports.
+[TEST 5] Database published ports
+[PASS] Database has no published ports.
+[TEST 6] Frontend published port
+[PASS] Frontend port 80 is published.
+=== ALL NETWORK TESTS PASSED ===
+
+=== DATABASE PERSISTENCE TESTS ===
+=== CLOUDTASK PERSISTENCE TEST ===
+[TEST 1] Create test task
+[PASS] Created task ID: 1
+[TEST 2] Recreate PostgreSQL container
+ Container cloudtask-database  Recreate
+ Container cloudtask-database  Recreated
+ Container cloudtask-database  Starting
+ Container cloudtask-database  Started
+ Container cloudtask-database  Waiting
+ Container cloudtask-database  Healthy
+[PASS] Database container recreated.
+[TEST 3] Wait for application recovery
+{"status":"healthy","database":"connected"}
+[TEST 4] Verify persisted task
+[PASS] Task survived database recreation.
+[TEST 5] Remove test task
+{"deleted":true}
+=== PERSISTENCE TEST PASSED ===
+
+========================================
+          ALL TESTS PASSED
+========================================
+bash tests/tsig.sh
+=== TSIG PERMISSIONS TEST ===
+[TEST 1] Valid key attempting TXT update
+Warning: Permanently added '192.168.122.206' (ED25519) to the list of known hosts.
+update failed: REFUSED
+[PASS] TSIG key cannot modify TXT records.
+[TEST 2] Valid key attempting update outside project zone
+update failed: NOTAUTH
+[PASS] Update outside project zone rejected.
+=== TSIG PERMISSIONS TEST PASSED ===

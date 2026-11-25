@@ -1,0 +1,15 @@
+---
+project_name: cloudtask
+
+dns_zone: cloudtask.test
+dns_ttl: 300
+dns_key_name: cloudtask-update
+
+app_directory: /opt/cloudtask
+
+db_name: cloudtask
+db_user: cloudtask
+
+db_password: "{{ lookup('ansible.builtin.file', playbook_dir + '/../.secrets/db_password') | trim }}"
+
+dns_tsig_secret: "{{ lookup('ansible.builtin.file', playbook_dir + '/../.secrets/tsig_secret') | trim }}"

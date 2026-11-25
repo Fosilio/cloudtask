@@ -1,0 +1,8 @@
+---
+- name: Deploy CloudTask application
+  hosts: cloudtask
+  become: true
+  gather_facts: true
+
+  roles:
+    - app

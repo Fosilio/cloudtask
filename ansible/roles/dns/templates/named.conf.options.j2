@@ -1,0 +1,21 @@
+options {
+    directory "/var/cache/bind";
+
+    listen-on port 53 { any; };
+    listen-on-v6 { none; };
+
+    recursion {{ dns_recursion }};
+
+    allow-query {
+        localhost;
+        localnets;
+        192.168.122.0/24;
+        172.20.10.0/24;
+        172.20.20.0/24;
+        172.20.30.0/24;
+    };
+
+    allow-transfer { none; };
+
+    dnssec-validation auto;
+};

@@ -1,0 +1,39 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+crash.log
+
+# Secrets and keys
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.key
+id_ed25519
+id_rsa
+*.tsig
+vault.yml
+
+# Generated files
+ansible/inventory.ini
+.runtime/
+
+# Virtual machine images
+*.qcow2
+*.img
+*.iso
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.vscode/
+
+# Logs
+*.log

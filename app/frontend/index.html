@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CloudTask</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="container">
+
+        <header>
+            <div>
+                <h1>CloudTask</h1>
+                <p>Cloud Infrastructure Project</p>
+            </div>
+
+            <span id="status">Connecting...</span>
+        </header>
+
+        <section class="stats">
+            <div class="stat">
+                <span>Total tasks</span>
+                <strong id="total">0</strong>
+            </div>
+
+            <div class="stat">
+                <span>Completed</span>
+                <strong id="completed">0</strong>
+            </div>
+
+            <div class="stat">
+                <span>Pending</span>
+                <strong id="pending">0</strong>
+            </div>
+        </section>
+
+        <form id="task-form">
+            <input
+                id="task-input"
+                placeholder="Enter a new task..."
+                maxlength="200"
+                required
+            >
+            <button type="submit">+ Add task</button>
+        </form>
+
+        <p id="message"></p>
+
+        <section id="task-list"></section>
+
+        <footer>
+            Nginx · FastAPI · PostgreSQL
+            <br>
+            Infrastructure as Code
+        </footer>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

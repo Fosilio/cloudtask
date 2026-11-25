@@ -1,0 +1,81 @@
+---
+- name: Create CloudTask application directory
+  ansible.builtin.file:
+    path: "{{ app_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy application source code
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../app/"
+    dest: "{{ app_directory }}/"
+    owner: root
+    group: root
+    mode: '0644'
+    directory_mode: '0755'
+  register: app_source
+
+- name: Configure application environment
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_directory }}/.env"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+  diff: false
+
+- name: Validate Docker Compose configuration
+  ansible.builtin.command:
+    cmd: docker compose config --quiet
+    chdir: "{{ app_directory }}"
+  changed_when: false
+  no_log: true
+
+- name: Check local application images
+  ansible.builtin.command:
+    cmd: "docker image inspect {{ item }}"
+  loop:
+    - cloudtask-frontend:1.0
+    - cloudtask-backend:1.0
+  register: app_images
+  changed_when: false
+  failed_when: false
+
+- name: Build application images
+  ansible.builtin.command:
+    cmd: docker compose build
+    chdir: "{{ app_directory }}"
+  when: >
+    app_source.changed or
+    (app_images.results |
+    selectattr('rc', 'ne', 0) |
+    list | length > 0)
+
+- name: Deploy CloudTask containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_directory }}"
+    state: present
+    build: never
+    pull: missing
+    recreate: auto
+    wait: true
+    wait_timeout: 180
+
+- name: Verify application health
+  ansible.builtin.uri:
+    url: "{{ app_health_url }}"
+    method: GET
+    status_code: 200
+    return_content: true
+  register: app_health
+  retries: 10
+  delay: 5
+  until: app_health.status | default(0) == 200
+  changed_when: false
+
+- name: Display application health
+  ansible.builtin.debug:
+    msg: "{{ app_health.json }}"

@@ -1,0 +1,10 @@
+---
+- name: Configure CloudTask server
+  hosts: cloudtask
+  become: true
+  gather_facts: true
+
+  roles:
+    - common
+    - docker
+    - dns

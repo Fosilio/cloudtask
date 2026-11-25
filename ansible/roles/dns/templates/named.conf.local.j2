@@ -1,0 +1,13 @@
+include "/etc/bind/cloudtask.key";
+
+zone "{{ dns_zone }}" {
+    type master;
+
+    file "{{ dns_zone_directory }}/db.{{ dns_zone }}";
+
+    update-policy {
+        grant {{ dns_key_name }}. zonesub A;
+    };
+
+    allow-transfer { none; };
+};

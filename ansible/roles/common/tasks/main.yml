@@ -1,0 +1,28 @@
+---
+- name: Wait for cloud-init to finish
+  ansible.builtin.command: cloud-init status --wait
+  changed_when: false
+
+- name: Install common system packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+      - dnsutils
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Disable root and password SSH login
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-cloudtask-security.conf
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      KbdInteractiveAuthentication no
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload SSH

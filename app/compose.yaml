@@ -1,0 +1,112 @@
+name: cloudtask
+
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+    image: cloudtask-frontend:1.0
+    container_name: cloudtask-frontend
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+
+    dns:
+      - ${DNS_SERVER_IP:?DNS_SERVER_IP required}
+
+    networks:
+      web:
+        ipv4_address: 172.20.10.10
+      app:
+        ipv4_address: 172.20.20.10
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+    image: cloudtask-backend:1.0
+    container_name: cloudtask-backend
+    restart: unless-stopped
+
+    environment:
+      DB_HOST: db.cloudtask.test
+      DB_NAME: cloudtask
+      DB_USER: cloudtask
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+
+    dns:
+      - ${DNS_SERVER_IP:?DNS_SERVER_IP required}
+
+    networks:
+      app:
+        ipv4_address: 172.20.20.20
+      db:
+        ipv4_address: 172.20.30.20
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 15s
+
+  database:
+    image: postgres:16-alpine
+    container_name: cloudtask-database
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: cloudtask
+      POSTGRES_USER: cloudtask
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      db:
+        ipv4_address: 172.20.30.30
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U cloudtask -d cloudtask
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+
+  web:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.10.0/24
+
+  app:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.20.0/24
+
+  db:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.20.30.0/24
+
+volumes:
+  postgres_data:
